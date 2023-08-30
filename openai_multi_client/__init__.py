@@ -87,6 +87,9 @@ class OpenAIMultiClient:
             payload.response = await openai.Image.acreate(**payload.data)
         elif payload.endpoint == "fine-tunes":
             payload.response = await openai.FineTune.acreate(**payload.data)
+        elif payload.endpoint == "whisper":
+            file = open(payload.data['file'], "rb")
+            payload.response = await openai.Audio.atranscribe("whisper-1", file)
         else:
             raise ValueError(f"Unknown endpoint {payload.endpoint}")
         logger.debug(f"Processed {payload}")

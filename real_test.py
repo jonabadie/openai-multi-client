@@ -30,6 +30,36 @@ def test():
     print(f"Total failed: {failed}")
     print('*' * 20)
 
+def audio_test():
+    api = OpenAIMultiClient(endpoint="whisper")
+
+    def make_requests():
+        pid = 0
+        for filename in os.listdir("./segments"):
+            pid = pid + 1
+            print(f"Requesting {pid}")
+            filepath = f"./segments/{filename}"
+            api.request(data={"file": filepath}, metadata={'id': pid})
+            if pid >= 2:
+                break
+
+    api.run_request_function(make_requests)
+
+    print('*' * 20)
+    i = 0
+    failed = 0
+    for result in api:
+        i += 1
+        if result.failed:
+            failed += 1
+            print(f"Failed {result.metadata['id']}")
+        else:
+            print(f"Got response for {result.metadata['id']}:", result.response)
+
+    print('*' * 20)
+    print(f"Total failed: {failed}")
+    print('*' * 20)
+
 
 def on_success(result: Payload):
     pid = result.metadata['id']
@@ -60,4 +90,4 @@ if __name__ == '__main__':
     if 'OPENAI_API_KEY' not in os.environ:
         raise Exception("Please set the OPENAI_API_KEY environment variable to run this test")
 
-    test_callback()
+    audio_test()
